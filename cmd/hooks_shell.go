@@ -59,6 +59,19 @@ func shellRCPath() (string, error) {
 	if p := os.Getenv("AUXLY_HOOK_RC"); p != "" {
 		return p, nil
 	}
+	// Check HOME explicitly first so tests that set HOME via t.Setenv work.
+	if home := os.Getenv("HOME"); home != "" {
+		switch filepath.Base(os.Getenv("SHELL")) {
+		case "zsh":
+			return filepath.Join(home, ".zshrc"), nil
+		case "bash":
+			return filepath.Join(home, ".bashrc"), nil
+		}
+		if runtime.GOOS == "darwin" {
+			return filepath.Join(home, ".zshrc"), nil
+		}
+		return filepath.Join(home, ".bashrc"), nil
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

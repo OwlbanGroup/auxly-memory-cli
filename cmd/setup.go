@@ -643,9 +643,16 @@ func runSetup(cmd *cobra.Command, args []string) error {
 // installAuxlyContextBlocks below. extraBanner is appended after the standard
 // update reminder (empty for local setup; a remote banner for `auxly connect`).
 func installAuxlySkills(extraBanner string) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return
+	// Check HOME explicitly first so tests that set HOME via t.Setenv work.
+	home := os.Getenv("HOME")
+	if home == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return
+		}
+		if home == "" {
+			return
+		}
 	}
 
 	commands := getSkillsMap()

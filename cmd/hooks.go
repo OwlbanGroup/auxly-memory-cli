@@ -203,6 +203,10 @@ func runHooksStatus() error {
 }
 
 func claudeSettingsPath() (string, error) {
+	// Check HOME explicitly first so tests that set HOME via t.Setenv work.
+	if home := os.Getenv("HOME"); home != "" {
+		return filepath.Join(home, ".claude", "settings.json"), nil
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

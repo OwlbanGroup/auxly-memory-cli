@@ -259,11 +259,18 @@ func (m sshModel) Refresh() tea.Cmd {
 }
 
 func remotesConfigPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return ""
+	return filepath.Join(auxlyHomeDirCached(), ".auxly", "remotes.yaml")
+}
+
+// auxlyHomeDirCached returns the path to the ~/.auxly directory, respecting
+// the HOME environment variable (set by tests via t.Setenv) before falling
+// back to os.UserHomeDir().
+func auxlyHomeDirCached() string {
+	if home := os.Getenv("HOME"); home != "" {
+		return home
 	}
-	return filepath.Join(home, ".auxly", "remotes.yaml")
+	home, _ := os.UserHomeDir()
+	return home
 }
 
 func readRemotes() []remoteEntry {
@@ -339,10 +346,7 @@ type clientsYAML struct {
 }
 
 func readClients() []clientRow {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return nil
-	}
+	home := auxlyHomeDirCached()
 	data, err := os.ReadFile(filepath.Join(home, ".auxly", "clients.yaml"))
 	if err != nil {
 		return nil
@@ -358,10 +362,7 @@ func readClients() []clientRow {
 // configured as a relay host. It reads the multi-relay list form (and the legacy
 // single-relay form), reporting the first relay plus the total count.
 func readHostInfo() (hostInfo, bool) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return hostInfo{}, false
-	}
+	home := auxlyHomeDirCached()
 	data, err := os.ReadFile(filepath.Join(home, ".auxly", "host.yaml"))
 	if err != nil {
 		return hostInfo{}, false

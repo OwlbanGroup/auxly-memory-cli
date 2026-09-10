@@ -88,6 +88,10 @@ type remotesConfig struct {
 
 // auxlyDir resolves the ~/.auxly directory.
 func auxlyDir() (string, error) {
+	// Check HOME explicitly first so tests that set HOME via t.Setenv work.
+	if home := os.Getenv("HOME"); home != "" {
+		return filepath.Join(home, config.DefaultDir), nil
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("failed to resolve home directory: %w", err)

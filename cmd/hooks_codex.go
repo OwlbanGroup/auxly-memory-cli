@@ -25,6 +25,10 @@ func codexConfigPath() string {
 	if home := os.Getenv("CODEX_HOME"); home != "" {
 		return filepath.Join(home, "config.toml")
 	}
+	// Check HOME explicitly first so tests that set HOME via t.Setenv work.
+	if home := os.Getenv("HOME"); home != "" {
+		return filepath.Join(home, ".codex", "config.toml")
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return filepath.Join(".codex", "config.toml")
@@ -35,6 +39,10 @@ func codexConfigPath() string {
 func codexHomeDir() string {
 	if home := os.Getenv("CODEX_HOME"); home != "" {
 		return home
+	}
+	// Check HOME explicitly first so tests that set HOME via t.Setenv work.
+	if home := os.Getenv("HOME"); home != "" {
+		return filepath.Join(home, ".codex")
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
